@@ -95,7 +95,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
           </p>
           <p>Способ оплаты: {payment === 'card' ? 'Онлайн-картой' : 'Наличными курьеру'}.</p>
           <p>Спасибо за заказ!</p>
-          <button type="button" className="page-card__submit" onClick={onClose}>
+          <button type="button" data-testid="closeSubmittedModalButton" className="page-card__submit" onClick={onClose}>
             Закрыть
           </button>
         </div>
@@ -166,6 +166,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
 
           <button
             type="submit"
+            data-testid="approveOrderButton"
             className="page-card__submit"
             disabled={state.items.length === 0 || isSubmitting}>
             Подтвердить заказ

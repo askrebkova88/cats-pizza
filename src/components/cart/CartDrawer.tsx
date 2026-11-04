@@ -85,7 +85,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <div className="cart-drawer__total">
                 Итого: <strong>{total.toFixed(2)} ₽</strong>
               </div>
-              <button type="button" className="cart-drawer__cta" onClick={handleGoToCart}>
+              <button data-testid="goToCartPageButton" type="button" className="cart-drawer__cta" onClick={handleGoToCart}>
                 Перейти к оформлению
               </button>
             </div>
