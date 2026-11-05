@@ -1,84 +1,114 @@
 import { test, expect } from '@playwright/test';
 
-// авторизация
-test('Sign In', async ({ page }) => {
-  await page.goto('');
-  await page.getByTestId('signInButton').click();
-  await page.getByLabel('Email').fill('test@test.com');
-  await page.getByLabel('Пароль').fill('Qwerty');
-  await page.getByTestId('signInOrSignUpButton').click();
+const TEST_USER_EMAIL = 'test@test.com';
+const TEST_USER_PASSWORD = 'Qwerty';
+const API_URL = 'http://localhost:3001/api';
 
-  await expect(page.getByTestId('signOutButton')).toBeVisible();
+test.describe('Auth', () => {
+  let createdUserEmail: string | null = null;
+
+  test.afterAll(async ({ request }) => {
+    if (!createdUserEmail) return;
+
+    await request.delete(`${API_URL}/users/by-email`, {
+      data: { email: createdUserEmail },
+    });
+
+    createdUserEmail = null;
+  });
+
+  // авторизация
+  test('Sign In', async ({ page }) => {
+    await page.goto('');
+    await page.getByTestId('signInButton').click();
+    await page.getByLabel('Email').fill(TEST_USER_EMAIL);
+    await page.getByLabel('Пароль').fill(TEST_USER_PASSWORD);
+    await page.getByTestId('signInOrSignUpButton').click();
+
+    await expect(page.getByTestId('signOutButton')).toBeVisible();
+  });
+
+  // регистрация
+  test('Sign Up', async ({ page }) => {
+    createdUserEmail = `${Date.now()}@test.com`;
+
+    await page.goto('');
+    await page.getByTestId('signInButton').click();
+    await page.getByTestId('registerButton').click();
+    await page.getByLabel('Имя').fill('Anna');
+    await page.getByLabel('Email').fill(createdUserEmail);
+    await page.getByLabel('Пароль:', { exact: true }).fill(TEST_USER_PASSWORD);
+    await page.getByLabel('Повторите пароль:', { exact: true }).fill(TEST_USER_PASSWORD);
+    await page.getByTestId('signInOrSignUpButton').click();
+
+    await expect(page.getByTestId('signOutButton')).toBeVisible();
+  });
 });
 
-// регистрация
-test('Sign Up', async ({ page }) => {
-  await page.goto('');
-  await page.getByTestId('signInButton').click();
-  await page.getByTestId('registerButton').click();
-  await page.getByLabel('Имя').fill('Anna');
-  await page.getByLabel('Email').fill(`${Date.now()}@test.com`);
-  await page.getByLabel('Пароль:', { exact: true }).fill('Qwerty');
-  await page.getByLabel('Повторите пароль:', { exact: true }).fill('Qwerty');
-  await page.getByTestId('signInOrSignUpButton').click();
+test.describe('Orders', () => {
+  test.describe.configure({ mode: 'serial' });
 
-  await expect(page.getByTestId('signOutButton')).toBeVisible();
-});
+  test.afterEach(async ({ request }) => {
+    await request.delete(`${API_URL}/orders/by-email`, {
+      data: { email: TEST_USER_EMAIL },
+    });
+  });
 
-// оформление заказа для неавторизованного пользователя
-test('Make order with login', async ({ page }) => {
-  await page.goto('');
-  await page.getByTestId('catCard_0').getByTestId('addToCartButton').click();
-  await page.getByTestId('catModalAddToCartButton').click();
-  await page.getByTestId('openCartButton').click();
-  await page.getByTestId('goToCartPageButton').click();
-  await page.getByTestId('makeOrderButton').click();
+  // оформление заказа для неавторизованного пользователя
+  test('Make order with login', async ({ page }) => {
+    await page.goto('');
+    await page.getByTestId('catCard_0').getByTestId('addToCartButton').click();
+    await page.getByTestId('catModalAddToCartButton').click();
+    await page.getByTestId('openCartButton').click();
+    await page.getByTestId('goToCartPageButton').click();
+    await page.getByTestId('makeOrderButton').click();
 
-  await page.getByLabel('Email').fill('test@test.com');
-  await page.getByLabel('Пароль').fill('Qwerty');
-  await page.getByTestId('signInOrSignUpButton').click();
+    await page.getByLabel('Email').fill(TEST_USER_EMAIL);
+    await page.getByLabel('Пароль').fill(TEST_USER_PASSWORD);
+    await page.getByTestId('signInOrSignUpButton').click();
 
-  await page.getByLabel('Город').fill('Самара');
-  await page.getByLabel('Улица').fill('Ленина');
-  await page.getByLabel('Дом').fill('1');
-  await page.getByLabel('Квартира').fill('5');
-  await page.getByLabel('Комментарий курьеру').fill('Комментарий');
+    await page.getByLabel('Город').fill('Самара');
+    await page.getByLabel('Улица').fill('Ленина');
+    await page.getByLabel('Дом').fill('1');
+    await page.getByLabel('Квартира').fill('5');
+    await page.getByLabel('Комментарий курьеру').fill('Комментарий');
 
-  await page.getByTestId('approveOrderButton').click();
-  await expect(page.getByTestId('modalTitle')).toHaveText('Заказ оформлен');
+    await page.getByTestId('approveOrderButton').click();
+    await expect(page.getByTestId('modalTitle')).toHaveText('Заказ оформлен');
 
-  await page.getByTestId('closeSubmittedModalButton').click();
+    await page.getByTestId('closeSubmittedModalButton').click();
 
-  await page.getByTestId('openOrdersButton').click();
-  await expect(page.getByTestId('ordersList').getByRole('listitem').first()).toBeVisible();
-});
+    await page.getByTestId('openOrdersButton').click();
+    await expect(page.getByTestId('ordersList').getByRole('listitem').first()).toBeVisible();
+  });
 
-// оформление заказа для авторизованного пользователя
-test('Make order', async ({ page }) => {
-  await page.goto('');
+  // оформление заказа для авторизованного пользователя
+  test('Make order', async ({ page }) => {
+    await page.goto('');
 
-  await page.getByTestId('signInButton').click();
-  await page.getByLabel('Email').fill('test@test.com');
-  await page.getByLabel('Пароль').fill('Qwerty');
-  await page.getByTestId('signInOrSignUpButton').click();
+    await page.getByTestId('signInButton').click();
+    await page.getByLabel('Email').fill(TEST_USER_EMAIL);
+    await page.getByLabel('Пароль').fill(TEST_USER_PASSWORD);
+    await page.getByTestId('signInOrSignUpButton').click();
 
-  await page.getByTestId('catCard_0').getByTestId('addToCartButton').click();
-  await page.getByTestId('catModalAddToCartButton').click();
-  await page.getByTestId('openCartButton').click();
-  await page.getByTestId('goToCartPageButton').click();
-  await page.getByTestId('makeOrderButton').click();
+    await page.getByTestId('catCard_0').getByTestId('addToCartButton').click();
+    await page.getByTestId('catModalAddToCartButton').click();
+    await page.getByTestId('openCartButton').click();
+    await page.getByTestId('goToCartPageButton').click();
+    await page.getByTestId('makeOrderButton').click();
 
-  await page.getByLabel('Город').fill('Самара');
-  await page.getByLabel('Улица').fill('Ленина');
-  await page.getByLabel('Дом').fill('1');
-  await page.getByLabel('Квартира').fill('5');
-  await page.getByLabel('Комментарий курьеру').fill('Комментарий');
+    await page.getByLabel('Город').fill('Самара');
+    await page.getByLabel('Улица').fill('Ленина');
+    await page.getByLabel('Дом').fill('1');
+    await page.getByLabel('Квартира').fill('5');
+    await page.getByLabel('Комментарий курьеру').fill('Комментарий');
 
-  await page.getByTestId('approveOrderButton').click();
-  await expect(page.getByTestId('modalTitle')).toHaveText('Заказ оформлен');
+    await page.getByTestId('approveOrderButton').click();
+    await expect(page.getByTestId('modalTitle')).toHaveText('Заказ оформлен');
 
-  await page.getByTestId('closeSubmittedModalButton').click();
+    await page.getByTestId('closeSubmittedModalButton').click();
 
-  await page.getByTestId('openOrdersButton').click();
-  await expect(page.getByTestId('ordersList').getByRole('listitem').first()).toBeVisible();
+    await page.getByTestId('openOrdersButton').click();
+    await expect(page.getByTestId('ordersList').getByRole('listitem').first()).toBeVisible();
+  });
 });
