@@ -9,7 +9,7 @@ test.describe('Auth', () => {
     if (!createdUserEmail) return;
 
     const cleanupAPI = new CleanupAPI(request);
-    cleanupAPI.deleteUserByEmail(createdUserEmail);
+    await cleanupAPI.deleteUserByEmail(createdUserEmail);
 
     createdUserEmail = null;
   });
