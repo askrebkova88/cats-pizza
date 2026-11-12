@@ -6,7 +6,7 @@ export class CartPage {
   }
 
   async open() {
-    this.page.goto('/cart');
+    await this.page.goto('/cart');
   }
 
   async assertEmpty() {
