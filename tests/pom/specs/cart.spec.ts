@@ -1,0 +1,33 @@
+import { guestTest as test } from '../../fixtures/app.fixture';
+
+test('Shows empty cart state', async ({ cartPage }) => {
+  await cartPage.open();
+  await cartPage.assertEmpty();
+});
+
+test('Removing last items makes cart empty', async ({ homePage, cartPage }) => {
+  await homePage.open();
+  await homePage.addFirstCatToCart();
+  await cartPage.open();
+  await cartPage.removeFirstItem();
+  await cartPage.assertEmpty();
+});
+
+test('Clear cart removes all items', async ({ homePage, cartPage }) => {
+  await homePage.open();
+  await homePage.addFirstCatToCart();
+  await cartPage.open();
+  await cartPage.clear();
+  await cartPage.assertEmpty();
+});
+
+//todo: add test - add more than 1 cat in cart and check removing and clear
+
+test('Changing quantity updates cart badge and input value', async ({ homePage, cartPage }) => {
+  await homePage.open();
+  await homePage.addFirstCatToCart();
+  await cartPage.open();
+  await cartPage.addOneMoreCat();
+  await homePage.assertCartBadgeCount(2);
+  await cartPage.assertCatCounter('2');
+});
