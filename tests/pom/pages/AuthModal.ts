@@ -30,11 +30,23 @@ export class AuthModal {
     await this.page.getByTestId('signInOrSignUpButton').click();
   }
 
+  private getModalLocator() {
+    return this.page.getByTestId('modal');
+  }
+
   async assertSignedIn() {
     await expect(this.page.getByTestId('signOutButton')).toBeVisible();
   }
 
   async assertError(message: string) {
     await expect(this.page.getByText(message)).toBeVisible();
+  }
+
+  async assertSingInModalHasCorrectView() {
+    await expect(this.getModalLocator()).toHaveScreenshot('singInModal.png');
+  }
+
+  async assertSingUpModalHasCorrectView() {
+    await expect(this.getModalLocator()).toHaveScreenshot('singUpModal.png');
   }
 }
