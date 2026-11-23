@@ -2,7 +2,7 @@
   {
     "id": "user-1",
     "name": "Test User",
-    "email": "test@test.ru",
+    "email": "test@test.com",
     "password": "Qwerty"
   }
 ]
