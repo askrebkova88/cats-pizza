@@ -3,7 +3,7 @@ import { CleanupAPI } from '../api/CleanupAPI';
 import { testUsers, testAddress } from '../data/testData';
 
 test.describe('Orders', () => {
-  test.describe.configure({ mode: 'serial' });
+  //test.describe.configure({ mode: 'serial' });
 
   test.afterEach(async ({ request }) => {
     const cleanupAPI = new CleanupAPI(request);

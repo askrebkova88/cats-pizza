@@ -9,14 +9,22 @@ export class CleanupAPI {
   }
 
   async deleteOrdersByEmail(email: string) {
-    await this.request.delete(`${this.apiUrl}/orders/by-email`, {
-      data: { email: email },
+    const response = await this.request.delete(`${this.apiUrl}/orders/by-email`, {
+      data: { email },
     });
+
+    if (!response.ok()) {
+      throw new Error(`Orders cleanup failed: ${response.status()}`);
+    }
   }
 
   async deleteUserByEmail(email: string) {
-    await this.request.delete(`${this.apiUrl}/users/by-email`, {
+    const response = await this.request.delete(`${this.apiUrl}/users/by-email`, {
       data: { email: email },
     });
+
+    if (!response.ok()) {
+      throw new Error(`User cleanup failed: ${response.status()}`);
+    }
   }
 }
