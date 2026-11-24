@@ -1,163 +1,116 @@
-## README для проекта `web-pizza`
+# Cats Pizza — QA Automation Project
 
----
+An end-to-end test automation project for an existing full-stack pizza shop application, built with **Playwright and TypeScript**.
 
-# Web Pizza (Cat Pizza Shop)
+The project demonstrates automated testing of real user workflows, reusable test architecture, API mocking, test data management, visual regression testing, and CI integration.
 
-Учебный проект интернет‑магазина «пиццы из котиков» на стеке **React + TypeScript + Vite** с простым backend на **Express**.  
-Приложение позволяет просматривать «котиков‑пиццы», добавлять их в корзину, оформлять заказ и просматривать историю заказов с базовой авторизацией.
+## Project Origin & My Contribution
 
-## Стек технологий
+**Application under test:** [Cats Pizza by osstep](https://github.com/osstep/cats-pizza).
 
-- **Frontend**
-  - React
-  - TypeScript
-  - React Router DOM
-  - Vite
-- **Backend**
-  - Node.js
-  - Express
-- **Прочее**
-  - ESLint (настройки для React/TS)
-  - `lowdb` для локальной персистентности backend-состояния в `server-data/db.json`
-  - Гостевая сессия в `HttpOnly` cookie, токены и корзины в persistent storage
+Cats Pizza is an existing React and Express application that I forked to practice and demonstrate QA automation engineering.
 
-## Возможности приложения
+The original application was developed by another author. **My contribution is the automated testing framework**, including:
 
-- **Каталог котиков**
-  - Получение списка котиков с бэкенда по `/api/cats`
-  - Карточки с выбором опций (шерсть, активность, дополнительные «топпинги»)
+- UI end-to-end tests using Playwright and TypeScript
+- Page Object Model implementation
+- Custom Playwright fixtures
+- Authentication setup with reusable storage state
+- API response mocking and test data management
+- Test data cleanup through backend API requests
+- Visual regression tests using screenshot comparisons
+- GitHub Actions integration for automated test execution
 
-- **Корзина**
-  - Добавление товара с конкретными опциями (`CartContext`)
-  - Поддержка гостей и авторизованных пользователей
-  - Изменение количества, удаление товара, очистка корзины
-  - Синхронизация с backend `/api/cart`, `/api/cart/items`, `/api/cart/clear`
-  - Изоляция гостевой корзины по cookie-сессии вместо общей памяти процесса
+## Tech Stack
 
-- **Оформление заказа**
-  - Страница `CheckoutPage` и модальное окно `CheckoutModal`
-  - Валидация адреса (город, улица, дом)
-  - Выбор способа оплаты (карта / наличные)
-  - Отправка заказа на бэкенд `/api/orders`
-  - Очистка корзины после успешного оформления
+| Category          | Technologies                       |
+| ----------------- | ---------------------------------- |
+| Test automation   | Playwright, TypeScript             |
+| Test architecture | Page Object Model, custom fixtures |
+| API interactions  | Playwright APIRequestContext       |
+| Mocking           | Playwright route interception      |
+| Visual testing    | Playwright screenshot assertions   |
+| CI/CD             | GitHub Actions, Docker             |
+| Reporting         | Playwright HTML Reporter           |
 
-- **Авторизация**
-  - Регистрация пользователя `/api/register`
-  - Логин `/api/login`
-  - Хранение токена и пользователя в `localStorage` (`AuthContext`)
-  - Перенос гостевой корзины в корзину пользователя при логине
-  - Токены backend-сессии сохраняются в `server-data/db.json`, поэтому не теряются при рестарте сервера
+## Test Coverage
 
-- **История заказов**
-  - Страница `OrdersPage`
-  - Получение заказов по `/api/orders`
-  - Отображение списка заказов с датой, суммой и составом
+The automated tests cover the following application features:
 
-## Структура проекта
+- **Catalog:** product display and interactions
+- **Authentication:** registration, login and negative scenarios
+- **Cart:** cart management and empty states
+- **Checkout:** order submission and form validation
+- **Orders:** order history and guest-user scenarios
+- **Visual regression:** screenshot-based UI checks
 
-```text
-web-pizza/
-  server/
-    app.mjs             # createApp(...) и lowdb-backed storage для API
-    index.mjs           # Bootstrap сервера и запуск app.listen(...)
-    seeds/
-      users.json        # Коммитимый seed пользователей для пустой db.json
-  server-data/
-    db.json             # lowdb-хранилище cats/users/sessions/carts/orders
-    users.json          # Локальный runtime-файл, не используется как seed в CI
-  pizza-images/         # Картинки котиков, раздаются как статика /static
-  src/
-    auth/
-      AuthContext.tsx   # Контекст авторизации, хранение user + token
-    cart/
-      CartContext.tsx   # Контекст корзины, работа с /api/cart
-    components/
-      auth/             # Модальные окна авторизации и оформления заказа
-      cats/             # Компоненты каталога котиков
-    pages/
-      HomePage.tsx      # Главная страница с котиками
-      CartPage.tsx      # Страница корзины
-      CheckoutPage.tsx  # Страница оформления заказа
-      OrdersPage.tsx    # История заказов
-    App.tsx             # Маршрутизация и основные layout-компоненты
-    main.tsx            # Точка входа фронтенда
-```
+## Test Architecture
 
-## Установка и запуск
+The framework separates test scenarios, Page Objects, fixtures, test data, and API utilities.
 
-### Требования
+Key implementation decisions include reusable authentication state, isolated guest and authenticated test fixtures, API response mocking, and backend cleanup operations.
 
-- Node.js (актуальная LTS‑версия)
-- npm
+For a detailed explanation, see **[Test Automation Documentation](docs/TEST_AUTOMATION.md)**.
 
-### Установка зависимостей
+## Getting Started
+
+### Prerequisites
+
+- Node.js and npm
+- Playwright browser binaries
+
+### Installation
 
 ```bash
 npm install
+npx playwright install
 ```
 
-### Запуск в режиме разработки
-
-Frontend (Vite):
+### Run tests
 
 ```bash
-npm run dev
-# по умолчанию http://localhost:5173
+npm test
 ```
 
-Backend (Express):
+The Playwright configuration automatically starts the frontend and backend development servers.
+
+### Run tests in UI mode
 
 ```bash
-npm run dev:server
-# по умолчанию http://localhost:3001
+npm run test:ui
 ```
 
-Оба сервера одновременно (удобно для разработки):
+### Run visual tests
 
 ```bash
-npm run dev:all
+npx playwright test --project=chromium-visual
 ```
 
-### Сборка production‑версии frontend
+### Update visual snapshots
 
 ```bash
-npm run build
+npm run test:upd
 ```
 
-### Предпросмотр собранного фронта
+### View test report
 
 ```bash
-npm run preview
+npx playwright show-report
 ```
 
-## API (кратко)
+## CI/CD
 
-- `GET /api/cats` — список котиков
-- `POST /api/register` — регистрация пользователя
-- `POST /api/login` — логин, возвращает `token` и `user`
-- `DELETE /api/users/by-email` — удалить пользователя по email (тело запроса: `{ "email": string }`, ответ: `{ deletedUsersCount, deletedOrdersCount }`)
-- `GET /api/cart` — текущая корзина
-- `POST /api/cart/items` — добавить товар в корзину
-- `PATCH /api/cart/items/:id` — изменить количество
-- `DELETE /api/cart/items/:id` — удалить товар
-- `POST /api/cart/clear` — очистить корзину
-- `POST /api/orders` — создать заказ (из тела запроса или текущей корзины)
-- `GET /api/orders` — получить заказы текущего пользователя или гостя
-- `DELETE /api/orders/by-email` — удалить все заказы пользователя по email (тело запроса: `{ "email": string }`, ответ: `{ deletedCount }`)
+The repository includes a GitHub Actions workflow for automated Playwright test execution.
 
-Авторизация реализована через токен в заголовке `Authorization: Bearer <token>`. Токен хранится в `localStorage` на фронтенде, а серверная сессия и данные корзины/заказов сохраняются в `server-data/db.json`. Для гостя backend создаёт `HttpOnly` cookie `guestSessionId`, чтобы корзина и история заказов были изолированы между браузерами и тестами.
+Test results are available through Playwright HTML reports.
 
-## Разработка
+## Documentation
 
-- Линтинг:
+- **[Test Automation Documentation](docs/TEST_AUTOMATION.md)** — testing architecture, implementation details, test coverage and execution.
+- **[Application Documentation](docs/APPLICATION.md)** — original application architecture, business logic, API and local setup instructions.
 
-```bash
-npm run lint
-```
+## Project Scope
 
-- Основная бизнес‑логика фронтенда сосредоточена в контекстах:
-  - `src/auth/AuthContext.tsx`
-  - `src/cart/CartContext.tsx`
+This is a personal QA automation portfolio project, not a production application.
 
----
+The purpose is to demonstrate test automation practices applied to an existing application, rather than to claim authorship of the application itself.
